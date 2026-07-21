@@ -845,108 +845,85 @@ class _StableDiffusionAppState extends State<StableDiffusionApp>
                       .toList();
 
                   if (modelFiles.isNotEmpty) {
-                    final selectedModel = await showShadDialog<String>(
+                    final selectedModels = await showShadDialog<List<String>>(
                       context: context,
                       builder: (BuildContext context) {
-                        return ShadDialog.alert(
-                          constraints: const BoxConstraints(
-                              maxWidth: 400), // Increased dialog width
-                          title: const Text('Select Model'),
-                          description: SizedBox(
-                            height: 300,
-                            child: Material(
-                              color: Colors.transparent,
-                              child: ShadTable.list(
-                                header: const [
-                                  ShadTableCell.header(
-                                    child: Text('Model',
-                                        style: TextStyle(fontSize: 16)),
-                                  ),
-                                  ShadTableCell.header(
-                                    alignment: Alignment.centerRight,
-                                    child: Text('Size',
-                                        style: TextStyle(fontSize: 16)),
-                                  ),
-                                ],
-                                columnSpanExtent: (index) {
-                                  if (index == 0) {
-                                    return const FixedTableSpanExtent(
-                                        250); // Wider model name column
-                                  }
-                                  if (index == 1) {
-                                    return const FixedTableSpanExtent(
-                                        80); // Size column
-                                  }
-                                  return null;
-                                },
-                                children: modelFiles
-                                    .asMap()
-                                    .entries
-                                    .map(
-                                      (entry) => [
-                                        ShadTableCell(
-                                          child: GestureDetector(
-                                            onTap: () => Navigator.pop(
-                                                context, entry.value.path),
-                                            child: Padding(
-                                              padding:
-                                                  const EdgeInsets.symmetric(
-                                                      vertical:
-                                                          12.0), // Taller rows
-                                              child: Text(
-                                                entry.value.path
-                                                    .split('/')
-                                                    .last,
-                                                style: const TextStyle(
-                                                  fontWeight: FontWeight.w500,
-                                                  fontSize: 14,
-                                                ),
-                                              ),
-                                            ),
-                                          ),
+                        final selectedPaths = <String>{};
+                        return StatefulBuilder(
+                          builder: (dialogContext, dialogSetState) {
+                            return ShadDialog.alert(
+                              constraints: const BoxConstraints(maxWidth: 420),
+                              title: const Text('Select Models'),
+                              description: SizedBox(
+                                height: 320,
+                                child: Material(
+                                  color: Colors.transparent,
+                                  child: Column(
+                                    children: [
+                                      const Padding(
+                                        padding: EdgeInsets.only(bottom: 8.0),
+                                        child: Text('複数選択できます。読み込みたいモデルを選んでください。'),
+                                      ),
+                                      Expanded(
+                                        child: ListView.builder(
+                                          itemCount: modelFiles.length,
+                                          itemBuilder: (context, index) {
+                                            final file = modelFiles[index];
+                                            final path = file.path;
+                                            final isSelected = selectedPaths.contains(path);
+                                            return CheckboxListTile(
+                                              value: isSelected,
+                                              title: Text(path.split('/').last),
+                                              subtitle: Text('${(file.lengthSync() / (1024 * 1024)).toStringAsFixed(1)} MB'),
+                                              onChanged: (value) {
+                                                dialogSetState(() {
+                                                  if (value == true) {
+                                                    selectedPaths.add(path);
+                                                  } else {
+                                                    selectedPaths.remove(path);
+                                                  }
+                                                });
+                                              },
+                                            );
+                                          },
                                         ),
-                                        ShadTableCell(
-                                          alignment: Alignment.centerRight,
-                                          child: GestureDetector(
-                                            onTap: () => Navigator.pop(
-                                                context, entry.value.path),
-                                            child: Text(
-                                              '${(entry.value.lengthSync() / (1024 * 1024)).toStringAsFixed(1)} MB',
-                                              style:
-                                                  const TextStyle(fontSize: 12),
-                                            ),
-                                          ),
-                                        ),
-                                      ],
-                                    )
-                                    .toList(),
+                                      ),
+                                    ],
+                                  ),
+                                ),
                               ),
-                            ),
-                          ),
-                          actions: [
-                            ShadButton.outline(
-                              onPressed: () => Navigator.pop(context),
-                              child: const Text('Cancel'),
-                            ),
-                          ],
+                              actions: [
+                                ShadButton.outline(
+                                  onPressed: () => Navigator.pop(context),
+                                  child: const Text('Cancel'),
+                                ),
+                                ShadButton(
+                                  onPressed: () => Navigator.pop(context, selectedPaths.toList()),
+                                  child: const Text('Load Selected'),
+                                ),
+                              ],
+                            );
+                          },
                         );
                       },
                     );
 
-                    if (selectedModel != null) {
-                      setState(() => loadingText = 'Loading Model...');
-                      _initializeProcessor(
-                        selectedModel,
-                        useFlashAttention,
-                        SDType.values.firstWhere(
-                          (type) => type.displayName == selectedQuantization,
-                          orElse: () => SDType.NONE,
-                        ),
-                        Schedule.values.firstWhere(
-                          (s) => s.displayName == selectedSchedule,
-                          orElse: () => Schedule.DISCRETE,
-                        ),
-                      );
+                    if (selectedModels != null && selectedModels.isNotEmpty) {
+                      setState(() => loadingText = 'Loading Models...');
+                      for (final modelPath in selectedModels) {
+                        _initializeProcessor(
+                          modelPath,
+                          useFlashAttention,
+                          SDType.values.firstWhere(
+                            (type) => type.displayName == selectedQuantization,
+                            orElse: () => SDType.NONE,
+                          ),
+                          Schedule.values.firstWhere(
+                            (s) => s.displayName == selectedSchedule,
+                            orElse: () => Schedule.DISCRETE,
+                          ),
+                        );
+                      }
                     }
                   }
                 }
