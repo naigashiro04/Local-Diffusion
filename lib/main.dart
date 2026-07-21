@@ -10,15 +10,10 @@ import 'package:permission_handler/permission_handler.dart'; // Added
 import 'package:shadcn_ui/shadcn_ui.dart';
 import 'package:file_picker/file_picker.dart';
 import 'ffi_bindings.dart';
-import 'inpainting_page.dart';
 import 'stable_diffusion_processor.dart';
-import 'upscaler_page.dart';
 import 'img2img_page.dart';
-import 'photomaker_page.dart';
 import 'package:image/image.dart' as img;
 import 'canny_processor.dart';
-import 'scribble2img_page.dart';
-import 'outpainting_page.dart';
 import 'image_processing_utils.dart'; // Import the new utility
 
 void main() {
@@ -1061,91 +1056,6 @@ class _StableDiffusionAppState extends State<StableDiffusionApp>
                 Navigator.pushReplacement(
                   context,
                   MaterialPageRoute(builder: (context) => const Img2ImgPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.imageUpscale, size: 32),
-              title: const Text(
-                'Upscaler',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
-              onTap: () {
-                if (_processor != null) {
-                  _processor!.dispose();
-                  _processor = null;
-                }
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const UpscalerPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.aperture, size: 32),
-              title: const Text('Photomaker',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              onTap: () {
-                if (_processor != null) {
-                  _processor!.dispose();
-                  _processor = null;
-                }
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const PhotomakerPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(Icons.draw, size: 32),
-              title: const Text('Scribble to Image',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              onTap: () {
-                if (_processor != null) {
-                  _processor!.dispose();
-                  _processor = null;
-                }
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const ScribblePage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.palette, size: 32),
-              title: const Text('Inpainting',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              onTap: () {
-                if (_processor != null) {
-                  _processor!.dispose();
-                  _processor = null;
-                }
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const InpaintingPage()),
-                );
-              },
-            ),
-            ListTile(
-              leading: const Icon(LucideIcons.expand, size: 32),
-              title: const Text('Outpainting',
-                  style: TextStyle(fontWeight: FontWeight.bold)),
-              onTap: () {
-                if (_processor != null) {
-                  _processor!.dispose();
-                  _processor = null;
-                }
-                Navigator.pop(context);
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(
-                      builder: (context) => const OutpaintingPage()),
                 );
               },
             ),
